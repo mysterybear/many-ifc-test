@@ -1,26 +1,91 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useMemo, useRef } from "react"
+import {
+  AmbientLight,
+  Group,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+} from "three"
+import {
+  acceleratedRaycast,
+  computeBoundsTree,
+  disposeBoundsTree,
+} from "three-mesh-bvh"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { IFCLoader } from "web-ifc-three/IFCLoader"
+
+const ifcUrl = "room.blend.ifc"
 
 function App() {
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  const renderer = useMemo(() => new WebGLRenderer(), [])
+
+  useEffect(() => {
+    if (!rootRef.current) return
+
+    const scene = new Scene()
+    const camera = new PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    )
+
+    const light = new AmbientLight()
+
+    scene.add(light)
+
+    const controls = new OrbitControls(camera, renderer.domElement)
+
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor("white")
+
+    rootRef.current.appendChild(renderer.domElement)
+
+    camera.position.z = 5
+
+    const ifcLoader = new IFCLoader()
+    ifcLoader.ifcManager.setWasmPath("../../../wasm/")
+    ifcLoader.ifcManager.setupThreeMeshBVH(
+      computeBoundsTree,
+      disposeBoundsTree,
+      acceleratedRaycast
+    )
+
+    const group1 = new Group()
+    group1.position.x = -5
+    scene.add(group1)
+
+    const group2 = new Group()
+    group2.position.x = 5
+    scene.add(group2)
+
+    ifcLoader.load(ifcUrl, (ifcModel) => {
+      group1.add(ifcModel)
+      group2.add(ifcModel)
+    })
+
+    function animate() {
+      requestAnimationFrame(animate)
+      renderer.render(scene, camera)
+      controls.update()
+    }
+
+    animate()
+  }, [renderer])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <div
+      ref={rootRef}
+      style={{
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        border: "1px solid black",
+      }}
+    />
+  )
 }
 
-export default App;
+export default App

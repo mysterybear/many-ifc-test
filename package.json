@@ -13,7 +13,10 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "three": "0.135",
+    "three-mesh-bvh": "^0.5.16",
     "typescript": "^4.4.2",
+    "web-ifc-three": "0.0.118",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
@@ -39,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/three": "^0.144.0"
   }
 }
