@@ -52,8 +52,9 @@ function App() {
     camera.position.z = 5
 
     const ifcLoader = new IFCLoader()
-    ifcLoader.ifcManager.setWasmPath("../../../wasm/")
-    ifcLoader.ifcManager.setupThreeMeshBVH(
+    const ifc = ifcLoader.ifcManager
+    ifc.setWasmPath("../../../wasm/")
+    ifc.setupThreeMeshBVH(
       computeBoundsTree,
       disposeBoundsTree,
       acceleratedRaycast
@@ -97,16 +98,6 @@ function App() {
       // Casts a ray
       return raycaster.intersectObjects(models.current)
     }
-    function pick(event: any) {
-      const found: any = cast(event)[0]
-      if (found) {
-        const index = found.faceIndex
-        const geometry = found.object.geometry
-        const ifc = ifcLoader.ifcManager
-        const expressId = ifc.getExpressId(geometry, index)
-        console.log([found.object.modelID, expressId])
-      }
-    }
 
     const preselectMat = new MeshLambertMaterial({
       transparent: true,
@@ -114,7 +105,6 @@ function App() {
       color: 0xff88ff,
       depthTest: false,
     })
-    const ifc = ifcLoader.ifcManager
 
     // Reference to the previous selection
     let preselectModel = { id: -1 }
@@ -122,13 +112,22 @@ function App() {
     function highlight(event: any, material: any, model: any) {
       const found: any = cast(event)[0]
       if (found) {
+        console.log(found.object.modelID)
+        console.log(ifc.state.models)
+
         // Gets model ID
         model.id = found.object.modelID
+
+        if (!(found.object.modelID in ifc.state.models)) {
+          ifc.state.models[found.object.modelID] = found.object
+        }
 
         // Gets Express ID
         const index = found.faceIndex
         const geometry = found.object.geometry
         const id = ifc.getExpressId(geometry, index)
+
+        console.log([model.id, id])
 
         // Creates subset
         ifcLoader.ifcManager.createSubset({
@@ -150,7 +149,6 @@ function App() {
       controls.update()
     }
 
-    renderer.domElement.onclick = pick
     renderer.domElement.onmousemove = (event) =>
       highlight(event, preselectMat, preselectModel)
     animate()
