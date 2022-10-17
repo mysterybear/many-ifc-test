@@ -20,6 +20,8 @@ import { IFCLoader } from "web-ifc-three/IFCLoader"
 
 const ifcUrl = "room.blend.ifc"
 
+let i = 0
+
 function App() {
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -28,7 +30,12 @@ function App() {
   const models = useRef<IFCModel[]>([])
 
   useEffect(() => {
+    if (i === 0) {
+      i++
+      return
+    }
     if (!rootRef.current) return
+    console.log("useEffect called")
 
     const scene = new Scene()
     const camera = new PerspectiveCamera(
@@ -118,16 +125,14 @@ function App() {
         // Gets model ID
         model.id = found.object.modelID
 
-        if (!(found.object.modelID in ifc.state.models)) {
-          ifc.state.models[found.object.modelID] = found.object
-        }
+        // if (!(found.object.modelID in ifc.state.models)) {
+        //   ifc.state.models[found.object.modelID] = found.object
+        // }
 
         // Gets Express ID
         const index = found.faceIndex
         const geometry = found.object.geometry
         const id = ifc.getExpressId(geometry, index)
-
-        console.log([model.id, id])
 
         // Creates subset
         ifcLoader.ifcManager.createSubset({
