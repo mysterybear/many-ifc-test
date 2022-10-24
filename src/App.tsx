@@ -83,7 +83,7 @@ function App() {
 
       const ifcModel2 = await ifcLoader.loadAsync(ifcUrl)
       models.current.push(ifcModel2)
-      group2.add(ifcModel1)
+      group2.add(ifcModel2)
 
       const raycaster = new Raycaster()
       raycaster.firstHitOnly = true
