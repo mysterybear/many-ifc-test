@@ -77,13 +77,13 @@ function App() {
       group2.position.x = 5
       scene.add(group2)
 
-      const ifcModel = await ifcLoader.loadAsync(ifcUrl)
+      const ifcModel1 = await ifcLoader.loadAsync(ifcUrl)
+      models.current.push(ifcModel1)
+      group1.add(ifcModel1)
 
-      models.current.push(ifcModel)
-      group1.add(ifcModel)
-      const clone = ifcModel.clone()
-      models.current.push(clone)
-      group2.add(clone)
+      const ifcModel2 = await ifcLoader.loadAsync(ifcUrl)
+      models.current.push(ifcModel2)
+      group2.add(ifcModel1)
 
       const raycaster = new Raycaster()
       raycaster.firstHitOnly = true
